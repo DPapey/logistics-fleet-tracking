@@ -1,22 +1,32 @@
---TDO
+--ToDo
 --DEFINE THE NOT NULLS BEFORE EXECUTING SCRIPT
-
 
 CREATE DATABASE IF NOT EXISTS eurofleet_logistics;
 use eurofleet_logistics;
 
 --DROP INDEXES
-SET FOREIGN_KEY_CHECKS = 0;
-SELECT CONCAT('DROP INDEX', index_name, ' ON ', table_name, ';')
-FROM information_schema.statistics
-WHERE table_schema = 'eurofleet_logistics';
 
---DROP TABLES
-
-SELECT CONCAT('DROP TABLE IF EXISTS ', table_name, ';')
-FROM information_schema.tables
-WHERE table_schema = 'eurofleet_logistics'
-SET FOREIGN_KEY_CHECKS = 1;
+--DROP TABLES reverse order
+DROP TABLE IF EXISTS vehicle_shipment;
+DROP TABLE IF EXISTS shipment;
+DROP TABLE IF EXISTS freight;
+DROP TABLE IF EXISTS vehicle_assignment;
+DROP TABLE IF EXISTS supplier;
+DROP TABLE IF EXISTS staff;
+DROP TABLE IF EXISTS staff_role;
+DROP TABLE IF EXISTS license_plate;
+DROP TABLE IF EXISTS vehicle;
+DROP TABLE IF EXISTS vehicle_model;
+DROP TABLE IF EXISTS vehicle_type;
+DROP TABLE IF EXISTS manufacturer_base;
+DROP TABLE IF EXISTS manufacturer;
+DROP TABLE IF EXISTS garage_fuel_prices;
+DROP TABLE IF EXISTS garage;
+DROP TABLE IF EXISTS contact_info;
+DROP TABLE IF EXISTS address;
+DROP TABLE IF EXISTS address_type;
+DROP TABLE IF EXISTS fuel;
+DROP TABLE IF EXISTS country;
 
 --CREATE TABLES
 CREATE TABLE IF NOT EXISTS country(
@@ -26,7 +36,8 @@ CREATE TABLE IF NOT EXISTS country(
 
 CREATE TABLE IF NOT EXISTS fuel(
 	fuel_id INT AUTO_INCREMENT PRIMARY KEY,
-	fuel_type VARCHAR(12)
+	fuel_type VARCHAR(12),
+	fuel_description TEXT
 );
 
 CREATE TABLE IF NOT EXISTS address_type(
@@ -41,8 +52,7 @@ CREATE TABLE IF NOT EXISTS address(
 	postcode VARCHAR(7),
 	address_type_id INT,
 	FOREIGN KEY (address_type_id) REFERENCES address_type(addr_type_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE
+	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS contact_info(
@@ -60,8 +70,7 @@ CREATE TABLE IF NOT EXISTS garage(
 	ON DELETE CASCADE
 	ON UPDATE CASCADE,
 	FOREIGN KEY (address_id) REFERENCES address(address_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE
+	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS garage_fuel_prices(
@@ -70,8 +79,7 @@ CREATE TABLE IF NOT EXISTS garage_fuel_prices(
 	price DECIMAL(10,2),
 	price_date DATE,
 	FOREIGN KEY (garage_id) REFERENCES garage(garage_id)
-	ON DELETE CASCADE,
-	ON UPDATE CASCADE
+	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS manufacturer(
@@ -80,31 +88,28 @@ CREATE TABLE IF NOT EXISTS manufacturer(
 	contact_id INT,
 	country_of_origin INT,
 	FOREIGN KEY (contact_id) REFERENCES contact_info(contact_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE,
+	ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (country_of_origin) REFERENCES country(country_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE
+	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS manufacturer_bases(
+CREATE TABLE IF NOT EXISTS manufacturer_base(
 	base_id INT AUTO_INCREMENT PRIMARY KEY,
 	manufacturer_id INT,
 	base_name VARCHAR(50),
 	address_id INT,
 	service_type VARCHAR(40),
 	FOREIGN KEY (address_id) REFERENCES address(address_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE
+	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS vehicle_type(
 	vehicle_type_id INT AUTO_INCREMENT PRIMARY KEY,
 	vehicle_type_name VARCHAR(45),
-	fuel_id INT, 
+	fuel_id INT,
+	fuel_capacity INT,
 	FOREIGN KEY (fuel_id) REFERENCES fuel(fuel_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE
+	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS vehicle_model(
@@ -112,11 +117,10 @@ CREATE TABLE IF NOT EXISTS vehicle_model(
 	model_name VARCHAR(45),
 	manufacturer_id INT,
 	vehicle_type_id INT,
-FOREIGN KEY (manufacturer_id) REFERENCES manufacturer(manufacturer_id) ON DELETE CASCADE
-	ON UPDATE CASCADE,
+	FOREIGN KEY (manufacturer_id) REFERENCES manufacturer(manufacturer_id) 
+	ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (vehicle_type_id) REFERENCES vehicle_type(vehicle_type_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE
+	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS vehicle(
@@ -124,9 +128,11 @@ CREATE TABLE IF NOT EXISTS vehicle(
 	vehicle_number VARCHAR(100),
 	model_id INT,
 	manufacturer_year YEAR,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	mileage INT DEFAULT 0,
 	FOREIGN KEY (model_id) REFERENCES vehicle_model(model_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE
+	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS license_plate(
@@ -136,8 +142,7 @@ CREATE TABLE IF NOT EXISTS license_plate(
 	start_date DATE,
 	end_date DATE,
 	FOREIGN KEY (vehicle_id) REFERENCES vehicle(vehicle_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE
+	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS staff_role(
@@ -160,8 +165,7 @@ CREATE TABLE IF NOT EXISTS staff(
 	ON DELETE CASCADE
 	ON UPDATE CASCADE,
 	FOREIGN KEY (address_id) REFERENCES address(address_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE
+	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS supplier(
@@ -171,11 +175,23 @@ CREATE TABLE IF NOT EXISTS supplier(
 	contact_id INT,
 	address_id INT, 
 	FOREIGN KEY (contact_id) REFERENCES contact_info(contact_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE,
+	ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (address_id) REFERENCES address(address_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE
+	ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS supplier_contract(
+	contract_id INT AUTO_INCREMENT PRIMARY KEY,
+	supplier_id INT,
+	contract_start_date DATE,
+	contract_end_date DATE,
+	contract_terms TEXT,
+	contract_status ENUM("Active", "Expired", "Completed"),
+	contract_value DECIMAL(12, 2),
+	contract_renewal_date DATE,
+	FOREIGN KEY (supplier_id) REFERENCES supplier(supplier_id)
+	ON DELETE CASCADE ON UPDATE CASCADE
+
 );
 
 CREATE TABLE IF NOT EXISTS vehicle_assignment(
@@ -185,11 +201,9 @@ CREATE TABLE IF NOT EXISTS vehicle_assignment(
 	start_date DATE,
 	end_date DATE,
 	FOREIGN KEY (vehicle_id) REFERENCES vehicle(vehicle_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE,
+	ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (staff_id) REFERENCES staff(staff_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE
+	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS freight(
@@ -206,14 +220,11 @@ CREATE TABLE IF NOT EXISTS shipment(
 	shipment_date DATE,
 	delivery_date DATE,
 	FOREIGN KEY (freight_id) REFERENCES freight(freight_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE,
+	ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (origin_address_id) REFERENCES address(address_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE,
+	ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (dest_address_id) REFERENCES address(address_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE
+	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS vehicle_shipment(
@@ -221,26 +232,24 @@ CREATE TABLE IF NOT EXISTS vehicle_shipment(
 	assignment_id INT,
 	shipment_id INT,
 	FOREIGN KEY (assignment_id) REFERENCES vehicle_assignment(assignment_id)
-	ON DELETE CASCADE 
-	ON UPDATE CASCADE,
+	ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (shipment_id) REFERENCES shipment(shipment_id)
-	ON DELETE CASCADE
-	ON UPDATE CASCADE
+	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
 --CREATE INDEXES
 --Address Filtering
-CREATE INDEX idx_address_type_id ON address(address_type_id);
+--CREATE INDEX idx_address_type_id ON address(address_type_id);
 
 --Faster Vehicle assignment
-CREATE INDEX idx_vehicle_id ON vehicle_assignment(vehicle_id);
-CREATE INDEX idx_staff_id ON vehicle_assignment(staff_id);
+--CREATE INDEX idx_vehicle_id ON vehicle_assignment(vehicle_id);
+--CREATE INDEX idx_staff_id ON vehicle_assignment(staff_id);
 
 --Shipment Query
-CREATE INDEX idx_freight_id ON shipment(freight_id);
-CREATE INDEX idx_origin_address_id ON shipment(origin_address_id);
-CREATE INDEX idx_dest_address_id ON shipment(dest_address_id);
+--CREATE INDEX idx_freight_id ON shipment(freight_id);
+--CREATE INDEX idx_origin_address_id ON shipment(origin_address_id);
+--CREATE INDEX idx_dest_address_id ON shipment(dest_address_id);
 
 --POPULATE TABLES
 
