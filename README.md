@@ -1,7 +1,7 @@
 # Logistics Fleet Management Database Schema
 
 ## Project Overview
-The **Logistics Fleet Management** project is designed to manage and track a logistics fleet, including driver and vehicle assignments, and shipment tracking. This schema ensures data integrity, efficient processing, and scalability for handling real-time logistics operations.
+The **Logistics Fleet Management** project is designed to manage and track a logistics fleet, including driver, vehicle assignments, and shipment tracking. This schema ensures data integrity, efficient processing, and scalability for handling real-time logistics operations.
 
 ## Technologies Used
 - **MariaDB**: Relational database management system for data storage.
@@ -17,9 +17,9 @@ The **Logistics Fleet Management** project is designed to manage and track a log
 
 ## Purpose
 This project aims to:
-- Streamline the tracking of shipments and assignments within a logistics company.
+- Streamline the tracking of shipments and assignments within a european logistics company.
 - Enable the management of fleet resources, such as drivers, vehicles, and shipment statuses.
-- Provide real-time tracking of vehicles and staff, reducing operational delays and improving efficiency.
+- Eventually: Provide real-time tracking of vehicles and staff, reducing operational delays and improving efficiency.
 
 ## Schema Design
 The schema includes tables for:

@@ -1,7 +1,13 @@
 CREATE DATABASE IF NOT EXISTS eurofleet_logistics;
 use eurofleet_logistics;
 
---DROP INDEXES
+--DROP INDEXES 
+DROP INDEX IF EXISTS idx_address_type_id; 
+DROP INDEX IF EXISTS idx_vehicle_id;
+DROP INDEX IF EXISTS idx_staff_id;
+DROP INDEX IF EXISTS idx_freight_id; 
+DROP INDEX IF EXISTS idx_origin_address_id; 
+DROP INDEX IF EXISTS idx_dest_address_id;
 
 --DROP TABLES reverse order
 DROP TABLE IF EXISTS vehicle_shipment;
@@ -27,23 +33,23 @@ DROP TABLE IF EXISTS country;
 
 --CREATE TABLES
 CREATE TABLE IF NOT EXISTS country(
-	country_id INT AUTO_INCREMENT PRIMARY KEY,
+	country_id INT SERIAL PRIMARY KEY,
 	country_name VARCHAR(30) NOT  NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS fuel(
-	fuel_id INT AUTO_INCREMENT PRIMARY KEY,
+	fuel_id INT SERIAL PRIMARY KEY,
 	fuel_type VARCHAR(12),
 	fuel_description TEXT
 );
 
 CREATE TABLE IF NOT EXISTS address_type(
-	addr_type_id INT AUTO_INCREMENT PRIMARY KEY,
+	addr_type_id INT SERIAL PRIMARY KEY,
 	addr_type_name VARCHAR(50)
 );
 
 CREATE TABLE IF NOT EXISTS address(
-	address_id INT AUTO_INCREMENT PRIMARY KEY,
+	address_id INT SERIAL PRIMARY KEY,
 	street VARCHAR(100),
 	town VARCHAR(100),
 	postcode VARCHAR(7),
@@ -53,13 +59,13 @@ CREATE TABLE IF NOT EXISTS address(
 );
 
 CREATE TABLE IF NOT EXISTS contact_info(
-	contact_id INT AUTO_INCREMENT PRIMARY KEY,
+	contact_id INT SERIAL PRIMARY KEY,
 	email_address VARCHAR(80),
 	phone_number VARCHAR(15)
 );
 
 CREATE TABLE IF NOT EXISTS garage(
-	garage_id INT AUTO_INCREMENT PRIMARY KEY,
+	garage_id INT SERIAL PRIMARY KEY,
 	garage_name VARCHAR(40),
 	contact_id INT,
 	address_id INT,
@@ -71,7 +77,7 @@ CREATE TABLE IF NOT EXISTS garage(
 );
 
 CREATE TABLE IF NOT EXISTS garage_fuel_prices(
-	price_id INT AUTO_INCREMENT PRIMARY KEY,
+	price_id INT SERIAL PRIMARY KEY,
 	garage_id INT,
 	price DECIMAL(10,2),
 	price_date DATE,
@@ -80,7 +86,7 @@ CREATE TABLE IF NOT EXISTS garage_fuel_prices(
 );
 
 CREATE TABLE IF NOT EXISTS manufacturer(
-	manufacturer_id INT AUTO_INCREMENT PRIMARY KEY,
+	manufacturer_id INT SERIAL PRIMARY KEY,
 	manufacturer_name VARCHAR(40),
 	contact_id INT,
 	country_of_origin INT,
@@ -91,19 +97,19 @@ CREATE TABLE IF NOT EXISTS manufacturer(
 );
 
 CREATE TABLE IF NOT EXISTS manufacturer_base(
-	base_id INT AUTO_INCREMENT PRIMARY KEY,
+	base_id INT SERIAL PRIMARY KEY,
 	manufacturer_id INT,
 	base_name VARCHAR(50),
 	address_id INT,
 	service_type VARCHAR(40),
 	FOREIGN KEY manufacturer_id REFERENCES manufacturer(manufacturer_id)
-	ON DELTE CASCADE ON UPDATE CASCADE,
+	ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (address_id) REFERENCES address(address_id)
 	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS vehicle_type(
-	vehicle_type_id INT AUTO_INCREMENT PRIMARY KEY,
+	vehicle_type_id INT SERIAL PRIMARY KEY,
 	vehicle_type_name VARCHAR(45),
 	fuel_id INT,
 	fuel_capacity INT,
@@ -112,7 +118,7 @@ CREATE TABLE IF NOT EXISTS vehicle_type(
 );
 
 CREATE TABLE IF NOT EXISTS vehicle_model(
-	model_id INT AUTO_INCREMENT PRIMARY KEY,
+	model_id INT SERIAL PRIMARY KEY,
 	model_name VARCHAR(45),
 	manufacturer_id INT,
 	vehicle_type_id INT,
@@ -123,7 +129,7 @@ CREATE TABLE IF NOT EXISTS vehicle_model(
 );
 
 CREATE TABLE IF NOT EXISTS vehicle(
-	vehicle_id INT AUTO_INCREMENT PRIMARY KEY,
+	vehicle_id INT SERIAL PRIMARY KEY,
 	vehicle_number VARCHAR(100),
 	model_id INT,
 	manufacturer_year YEAR,
@@ -135,7 +141,7 @@ CREATE TABLE IF NOT EXISTS vehicle(
 );
 
 CREATE TABLE IF NOT EXISTS license_plate(
-	license_plate_id INT AUTO_INCREMENT PRIMARY KEY,
+	license_plate_id INT SERIAL PRIMARY KEY,
 	vehicle_id INT,
 	license_plate VARCHAR(20),
 	start_date DATE,
@@ -145,12 +151,12 @@ CREATE TABLE IF NOT EXISTS license_plate(
 );
 
 CREATE TABLE IF NOT EXISTS staff_role(
-	role_id INT AUTO_INCREMENT PRIMARY KEY,
+	role_id INT SERIAL PRIMARY KEY,
 	role_name VARCHAR(45)
 );
 
 CREATE TABLE IF NOT EXISTS staff(
-	staff_id INT AUTO_INCREMENT PRIMARY KEY,
+	staff_id INT SERIAL PRIMARY KEY,
 	surname VARCHAR(50),
 	forename VARCHAR(50),
 	role_id INT,	
@@ -168,7 +174,7 @@ CREATE TABLE IF NOT EXISTS staff(
 );
 
 CREATE TABLE IF NOT EXISTS supplier(
-	supplier_id INT AUTO_INCREMENT PRIMARY KEY,
+	supplier_id INT SERIAL PRIMARY KEY,
 	supplier_name VARCHAR(50),
 	contact_name VARCHAR(50),
 	contact_id INT,
@@ -179,22 +185,28 @@ CREATE TABLE IF NOT EXISTS supplier(
 	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS contract_status(
+	status_id INT SERIAL PRIMARY KEY,
+	contract_status VARCHAR (20)
+);
+
 CREATE TABLE IF NOT EXISTS supplier_contract(
-	contract_id INT AUTO_INCREMENT PRIMARY KEY,
+	contract_id INT SERIAL PRIMARY KEY,
 	supplier_id INT,
 	contract_start_date DATE,
 	contract_end_date DATE,
 	contract_terms TEXT,
-	contract_status ENUM("Active", "Expired", "Completed"),
+	status_id INT,
 	contract_value DECIMAL(12, 2),
 	contract_renewal_date DATE,
+	FOREIGN KEY (status_id) REFERENCES contract_status(status_id) ON DELETE CASCADE,
 	FOREIGN KEY (supplier_id) REFERENCES supplier(supplier_id)
 	ON DELETE CASCADE ON UPDATE CASCADE
 
 );
 
 CREATE TABLE IF NOT EXISTS vehicle_assignment(
-	assignment_id INT AUTO_INCREMENT PRIMARY KEY,
+	assignment_id INT SERIAL PRIMARY KEY,
 	vehicle_id INT,
 	staff_id INT,
 	start_date DATE,
@@ -206,13 +218,13 @@ CREATE TABLE IF NOT EXISTS vehicle_assignment(
 );
 
 CREATE TABLE IF NOT EXISTS freight(
-	freight_id INT AUTO_INCREMENT PRIMARY KEY,
+	freight_id INT SERIAL PRIMARY KEY,
 	freight_name VARCHAR(45),
 	freight_description TEXT
 );
 
 CREATE TABLE IF NOT EXISTS shipment(
-	shipment_id INT AUTO_INCREMENT PRIMARY KEY,
+	shipment_id INT SERIAL PRIMARY KEY,
 	freight_id INT,
 	origin_address_id INT,
 	dest_address_id INT,
@@ -227,7 +239,7 @@ CREATE TABLE IF NOT EXISTS shipment(
 );
 
 CREATE TABLE IF NOT EXISTS vehicle_shipment(
-	delivery_id INT AUTO_INCREMENT PRIMARY KEY,
+	delivery_id INT SERIAL PRIMARY KEY,
 	assignment_id INT,
 	shipment_id INT,
 	FOREIGN KEY (assignment_id) REFERENCES vehicle_assignment(assignment_id)
@@ -236,21 +248,46 @@ CREATE TABLE IF NOT EXISTS vehicle_shipment(
 	ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-
 --CREATE INDEXES
 --Address Filtering
---CREATE INDEX idx_address_type_id ON address(address_type_id);
+CREATE INDEX idx_address_type_id ON address(address_type_id);
 
 --Faster Vehicle assignment
---CREATE INDEX idx_vehicle_id ON vehicle_assignment(vehicle_id);
---CREATE INDEX idx_staff_id ON vehicle_assignment(staff_id);
+CREATE INDEX idx_vehicle_id ON vehicle_assignment(vehicle_id);
+CREATE INDEX idx_staff_id ON vehicle_assignment(staff_id);
 
 --Shipment Query
---CREATE INDEX idx_freight_id ON shipment(freight_id);
---CREATE INDEX idx_origin_address_id ON shipment(origin_address_id);
---CREATE INDEX idx_dest_address_id ON shipment(dest_address_id);
+CREATE INDEX idx_freight_id ON shipment(freight_id);
+CREATE INDEX idx_origin_address_id ON shipment(origin_address_id);
+CREATE INDEX idx_dest_address_id ON shipment(dest_address_id);
 
 --POPULATE TABLES
+INSERT INTO country (country_name) VALUES 
+	('United Kingdom'),
+	('Sweden'),
+	('Netherlands');
+
+INSERT INTO fuel (fuel_type, fuel_description) VALUES
+	('Diesel', 'Commercial Diesel Fuel'),
+	('Petrol', 'Commercial Petrol Fuel'),
+	('Electric', 'Electric powered vehicles'),
+	('Hybrid', 'Hybrid Fuel system');
+
+INSERT INTO address_type (addr_type_name) VALUES
+	('Staff'),
+	('Manufacturer HQ'),
+	('Garage'),
+	('Dealership');
+
+INSERT INTO address (street, town, postcode, address_type_id) VALUES
+	('Mylord Crescent', 'Newcastle Upon Tyne', 'NE12 5UW', 4); --Scania
+
+INSERT INTO contact_info (email_address, phone_number) VALUES
+	('contact@ukgarage.com', '+441253151561');
+
+
+INSERT INTO vehicle_model (model_name, manufacturer_id, vehicle_type_id) VALUES
+('Scania R500', 1, 1)
 
 
 
@@ -262,3 +299,4 @@ CREATE TABLE IF NOT EXISTS vehicle_shipment(
 --FROM address a
 --JOIN address_type at ON a.address_type_id = at.addr_type_id
 --WHERE at.addr_type_name = 'Garage';
+
