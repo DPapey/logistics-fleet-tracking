@@ -1,31 +1,25 @@
 # Logistics Fleet Management Database Schema
 
 ## Project Overview
-The **Logistics Fleet Management** project is designed to manage and track a logistics fleet, including driver, vehicle assignments, and shipment tracking. This schema ensures data integrity, efficient processing, and scalability for handling real-time logistics operations.
+**Personal Conceptual Scenario**
+
+Eurofleet Logistics requires a robust and functional database schema to manage their truck fleet and associated dealerships. The system must also maintain detailed contact information for staff members and track which vehicle assignments to individual staff.
+
+Due to operational requirements, staff members need to be categorised based on their training and certifications to ensure safety compliance. This includes Heavy Goods Vehicle (HGV) licenses and handling different hazard types (Hazard Types 1 to 4), as defined by the UK Health and Safety Executive.
+
+While Eurofleet Logistics is headquartered in the UK, their fleet operates across both the UK and the European Union, so the database must support tracking of vehicles and operations in both regions.
+
+To support core logistical activities, the system must also track deliveries, including their origin and destination locations, assigned vehicles and driver, delivery deadlines, and current status (in-transit, delivered, overdue). This allows Eurofleet to monitor delivery performance, manage routing efficiently, and ensure on-time fulfillment.
 
 ## Technologies Used
 - **MariaDB**: Relational database management system for data storage.
-- **SQL**: Utilized for database queries, data retrieval, and indexing.
-- **3NF (Third Normal Form)**: The schema design follows 3NF to reduce data redundancy and improve data integrity.
+- **SQL**: Utilised for querying, data manipulation, and indexing.
+- **3NF (Third Normal Form)**: The schema design adheres to 3NF principles to reduce redundancy and ensure data integrity.
 
 
 ## Features
-- **3NF-Compliant Database**: The database schema follows the principles of the third normal form, ensuring efficient storage and minimized data redundancy.
-- **ACID Transactions**: The database design supports ACID properties to ensure reliable transactions.
-- **Referential Integrity**: Foreign keys are used to maintain relationships between tables, ensuring data consistency across all related entities (e.g., shipments, vehicles, and staff).
-- **Comprehensive SQL Script**: A single, efficient PL/SQL script is used to handle data operations, ensuring fast processing and consistency.
+- **3NF-Compliant Database**: Ensures efficient data storage and minimises redundancy.
+- **ACID Transactions**: Supports Atomicity, Consistency, Isolation and Durability for reliable transactional processing.
+- **Referential Integrity**: Foreign keys maintain relationships between tables, ensuring data consistency across entities such as shipments, vehicles and staff.
+- **Modular SQL Scripts**: Separate scripts are used for table creation, data population, and querying/testing, improving maintainability, readability and ease of testing.
 
-## Purpose
-This project aims to:
-- Streamline the tracking of shipments and assignments within a european logistics company.
-- Enable the management of fleet resources, such as drivers, vehicles, and shipment statuses.
-- Eventually: Provide real-time tracking of vehicles and staff, reducing operational delays and improving efficiency.
-
-## Schema Design
-The schema includes tables for:
-- **Vehicles**: Store information about the fleet's vehicles.
-- **Drivers**: Track driver information and their assignments.
-- **Shipments**: Manage shipment details and status.
-- **Assignments**: Link vehicles and drivers to specific shipments.
-  
-The relationships between these entities are established using **foreign keys** to ensure data integrity and consistency.
