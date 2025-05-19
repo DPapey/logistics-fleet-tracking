@@ -15,7 +15,8 @@ To support core logistical activities, the system must also track deliveries, in
 - **MariaDB**: Relational database management system for data storage.
 - **SQL**: Utilised for querying, data manipulation, and indexing.
 - **3NF (Third Normal Form)**: The schema design adheres to 3NF principles to reduce redundancy and ensure data integrity.
-
+- **Docker**: Used to host MariaDB and phpMyAdmin in local containers, making the DBMS independent from the host environment. This improves security, provides scalability, enables web-browser interfacing, and allows seamless deployment to a VPS.
+- **Git**: Used for version control of SQL scripts and documentation.
 
 ## Features
 - **3NF-Compliant Database**: Ensures efficient data storage and minimises redundancy.

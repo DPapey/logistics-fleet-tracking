@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS vehicle(
 	vehicle_number VARCHAR(100),
 	model_id INT NOT NULL,
 	dealership_id INT NOT NULL,
-	manufacturer_year YEAR,
+	manufactured_year YEAR,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	mileage INT DEFAULT 0,
