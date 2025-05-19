@@ -1,4 +1,4 @@
-CREATE DATABASE eurofleet_logistics;
+--CREATE DATABASE eurofleet_logistics;
 
 --DROP INDEXES
 DROP INDEX IF EXISTS idx_address_type_id; 
@@ -20,8 +20,7 @@ DROP TABLE IF EXISTS supplier;
 DROP TABLE IF EXISTS staff_certification;
 DROP TABLE IF EXISTS certification_type;
 DROP TABLE IF EXISTS staff;
-DROP TABLE IF EXISTS role_clearance;
-DROP TABLE IF EXISTS role;
+DROP TABLE IF EXISTS staff_role;
 DROP TABLE IF EXISTS clearance_level;
 DROP TABLE IF EXISTS license_plate;
 DROP TABLE IF EXISTS vehicle;
@@ -137,7 +136,7 @@ CREATE TABLE clearance_level(
 );
 
 CREATE TABLE staff_role(
-	role_id SERIAL PRIMARY KEY,
+	staff_role_id SERIAL PRIMARY KEY,
 	role_name VARCHAR(40),
 	clearance_id INT NOT NULL,
 	FOREIGN KEY (clearance_id) REFERENCES clearance_level(clearance_id) 
@@ -148,11 +147,11 @@ CREATE TABLE staff(
 	staff_id SERIAL PRIMARY KEY,
 	surname VARCHAR(30),
 	forename VARCHAR(30),
-	role_id INT NOT NULL,	
+	staff_role_id INT NOT NULL,	
 	hire_date DATE NOT NULL,
 	contact_id INT NOT NULL,
 	address_id INT NOT NULL,
-	FOREIGN KEY (role_id) REFERENCES staff_role(role_id)
+	FOREIGN KEY (staff_role_id) REFERENCES staff_role(staff_role_id)
 	ON DELETE CASCADE,
 	FOREIGN KEY (contact_id) REFERENCES contact_info(contact_id)
 	ON DELETE CASCADE ON UPDATE CASCADE,
@@ -200,10 +199,10 @@ CREATE TABLE supplier_contract(
 	contract_start_date DATE NOT NULL,
 	contract_end_date DATE NOT NULL,
 	contract_terms TEXT NOT NULL,
-	status_id INT NOT NULL,
+	contract_status_id INT NOT NULL,
 	contract_value DECIMAL(12, 2) NOT NULL,
 	contract_renewal_date DATE,
-	FOREIGN KEY (status_id) REFERENCES contract_status(status_id),
+	FOREIGN KEY (contract_status_id) REFERENCES contract_status(contract_status_id),
 	FOREIGN KEY (supplier_id) REFERENCES supplier(supplier_id)
 );
 
